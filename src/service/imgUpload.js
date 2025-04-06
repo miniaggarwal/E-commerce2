@@ -1,4 +1,4 @@
-/*import aws from "aws-sdk";
+import aws from "aws-sdk";
 import s3 from "../config/s3.config.js";
 
 export const s3FileUpload = async({bucketName, key, body,contentType}) =>{
@@ -19,13 +19,12 @@ export const s3FileDelete = async({bucketName, key}) =>{
     }).promise()
 }
 
-*/
 
 
-import cloudinary from "cloudinary";
+// import cloudinary from "cloudinary";
 
-export const uploadFile = async(img)=>{
-    await cloudinary.UploadStream.upload(img)
+// export const uploadFile = async(img)=>{
+//     await cloudinary.UploadStream.upload(img)
 
-}
+// }
 

@@ -44,7 +44,93 @@ export const addProduct = asyncHandler(async(req,res)=>{
             })
         )
 
+        let imgArray = await imgArrayResp;
+
+        const product = await Product.create({
+            _id : productId,
+            photos : imgArray,
+            ...fields
+        })
+
+        if(!product){
+            throw new CustomError("Product not created",400)
+        }
+
+        res.status(200).json({
+            success : true,
+            message : "Product added!!",
+            product
+        })
         
+    })
+
+})
+
+
+export const getAllProducts = asyncHandler(async(req,res)=>{
+    const products = await Product.find({})
+
+    if(!products){
+        throw new CustomError("Products not found", 404)
+    }
+
+    res.status(200).json({
+        success : true,
+        products : products
+    })
+
+})
+
+export const getProduct = asyncHandler(async(req,res)=>{
+    
+    const {id} = req.params
+    
+    const product = await Product.findById({id})
+
+    if(!product){
+        throw new CustomError("Product not found", 404)
+    }
+
+    res.status(200).json({
+        success : true,
+        product : product
+    })
+
+})
+
+
+export const getProductByCollectionId = asyncHandler(async(req,res)=>{
+    
+    const {id : collectionId} = req.params
+
+    const product = await Product.find({collectionId})
+
+    if(!product){
+        throw new CustomError("Product not found", 404)
+    }
+
+    res.status(200).json({
+        success : true,
+        product : product
+    })
+
+})
+
+export const deleteProduct = asyncHandler(async(req,res)=>{
+    
+    const {id} = req.params
+
+    const product = await Product.findById({id})
+
+    if(!product){
+        throw new CustomError("Product not found", 404)
+    }
+
+    const deletedProduct = await Product.findByIdAndDelete({id})
+
+    res.status(200).json({
+        success : true,
+        product : deletedProduct
     })
 
 })
