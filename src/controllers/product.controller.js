@@ -34,7 +34,7 @@ export const addProduct = asyncHandler(async(req,res)=>{
 
                 const upload = await s3FileUpload({
                     bucketNAme : config.S3_BUCKET_NAME,
-                    key : `product/${productId}/phot_${index+1}.png`,
+                    key : `product/${productId}/photo_${index+1}.png`,
                     body : data,
                     contentType : element.mimetype
 
@@ -126,6 +126,24 @@ export const deleteProduct = asyncHandler(async(req,res)=>{
         throw new CustomError("Product not found", 404)
     }
 
+    //to delete photos 
+
+    // 1. Resoleve Promise
+    // 2. loop through img array => delete each photo
+    // 3. key : product._id
+
+
+    const deletePhotos = Promise.all(
+        product.photos.map(async(element, index)=>{
+            await s3FileDelete({bucketNAme : config.S3_BUCKET_NAME,
+                key : `product/${product._id.toHexString()}/photo_${index+1}.png`,
+
+            })
+        })
+    )
+
+    await deletePhotos;
+    
     const deletedProduct = await Product.findByIdAndDelete({id})
 
     res.status(200).json({

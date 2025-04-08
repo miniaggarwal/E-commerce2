@@ -59,9 +59,12 @@ export const login = asyncHandler(async(req,res,next) =>{
         throw new CustomError("Enter all details", 400)
     }
 
-    const user = User.findOne({email}).select("+password")
+    const user = await User.findOne({email}).select("+password")
 
-    const isPasswordMatched = await user.comparePassword(password)
+    if(!user){
+        throw new CustomError("User Not found!!", 400)
+    }
+    const isPasswordMatched = await user.comparePassword(password);
 
     if(isPasswordMatched){
         const token = user.getJWTtoken();
