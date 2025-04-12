@@ -92,7 +92,7 @@ export const getProduct = asyncHandler(async(req,res)=>{
     }
 
     res.status(200).json({
-        success : true,
+        success : true, 
         product : product
     })
 
@@ -142,7 +142,7 @@ export const deleteProduct = asyncHandler(async(req,res)=>{
         })
     )
 
-    await deletePhotos;
+    await deletePhotos;  
     
     const deletedProduct = await Product.findByIdAndDelete({id})
 
@@ -152,3 +152,5 @@ export const deleteProduct = asyncHandler(async(req,res)=>{
     })
 
 })
+
+

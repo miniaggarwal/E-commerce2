@@ -1,7 +1,7 @@
 import User from "../models/user.schema.js";
 import asyncHandler from "../service/asyncHandler.js";
 import CustomError from "../service/customErrors.js";
-
+import mailHelper from "../utils/mailHelper.js";
 
 export const cookieOptions = {
     expires : new Date(Date.now() +  3*24*60*60*1000),
@@ -111,6 +111,82 @@ export const getProfile = asyncHandler(async(req,res)=>{
     })
 
 })
+
+
+//yha bs mail bhej rhe h user ko link k saath 
+export const forgotPassword = asyncHandler(async(req,res)=>{
+    const {email} = req.body
+
+    const user = await User.findOne(email);
+
+    if(!user){
+        throw new CustomError("User not Found", 404);
+    }
+
+   const resetToken =  await user.generateForgotPasswordToken()
+
+    await user.save({validateBeforeSave : false})
+
+    // reset link
+    const resetUrl = `${req.protocol}://${req.get("host")}/api/auth/passord/reset/${resetToken}`
+
+    const message = `Reset URL : ${resetUrl} \n\n If not you please ignore`
+
+    try{
+        await mailHelper({
+            email : user.email,
+            subject : "Password Reset",
+            message
+        })
+    }catch(err){
+        user.forgotPasswordToken = undefined;
+        user.forgotPasswordExpiry = undefined;
+
+        await user.save({validateBeforeSave : false})
+
+        throw new CustomError("Email cannot be send", 400)
+    }
+})
+
+
+export const resetPassword = asyncHandler(async(req,res)=>{
+    const {token : resetToken} = req.params
+    const {password, confirmPassword} = req.body
+
+
+    if(password!== confirmPassword){
+        throw new CustomError("Password does not match",400)
+    }
+
+    const resetPasswordToken = crypto.createHash("sha256")
+    .update(resetToken)
+    .digest("hex")
+
+    const user = await User.findOne({
+        forgotPasswordToken : resetPasswordToken,
+        forgotPasswordExpiry : {$gt : Date.now()}
+    })
+
+
+    if(!user){
+        throw new CustomError("Password token invalid or expired",400)
+    }
+
+    user.password = password;
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordExpiry = undefined;
+
+    await user.save();
+
+    const token = user.getJWTtoken();
+    res.cookie("token", token, cookieOptions)
+
+    res.status(200).json({
+        success : true,
+        user
+    })
+})
+
 
 
 
