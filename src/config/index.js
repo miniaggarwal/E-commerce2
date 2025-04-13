@@ -24,6 +24,9 @@ const config = {
     SMTP_SENDER_EMAIL: process.env.SMTP_SENDER_EMAIL,
 
 
+    RAZORPAY_KEY_ID : process.env.RAZORPAY_KEY_ID ||"yourkeyid",
+    RAZORPAY_SECRET : process.env.RAZORPAY_SECRET ||"yoursecret"
+
 }
 
 
